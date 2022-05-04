@@ -1,8 +1,11 @@
 package com.example.naver_map_test;
 
+import android.Manifest;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.UiThread;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -13,18 +16,33 @@ import android.widget.Toast;
 
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.CameraPosition;
+import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.MapView;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.OnMapReadyCallback;
+import com.naver.maps.map.UiSettings;
+import com.naver.maps.map.overlay.LocationOverlay;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.OverlayImage;
+import com.naver.maps.map.util.FusedLocationSource;
+
+import java.util.Objects;
 
 public class fragment_home1 extends Fragment implements OnMapReadyCallback {
 
     //지도 제어를 위한 mapView 변수
-    private MapView mapView;
-    private static NaverMap naverMap;
+    private MapView mapView;     // View를 사용하여 naver map을 출력했다면
+    private static NaverMap naverMap;  // Fragment를 이용하여 naver map을 출력 했다면
+
+
+    // 지도상에 현재 위치를 받아오는 변수
+    private FusedLocationSource locationSource;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
+    private static final String[] PERMISSIONS = {
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+    };
 
 //    // TODO: Rename parameter arguments, choose names that match
 //    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -61,30 +79,26 @@ public class fragment_home1 extends Fragment implements OnMapReadyCallback {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        FragmentManager fm = getActivity().getSupportFragmentManager();
+        FragmentManager fm = getChildFragmentManager();
         MapFragment mapFragment = (MapFragment) fm.findFragmentById(R.id.map);
 
         if(mapFragment == null) {
             mapFragment = MapFragment.newInstance();
             fm.beginTransaction().add(R.id.map, mapFragment).commit();
         }
-
         // onMapReady 함수를 인자로 callback함
         mapFragment.getMapAsync(this);
-
+        locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
     }
 
+
+
+    @UiThread
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
-        this.naverMap = naverMap;
+        fragment_home1.naverMap = naverMap;
 
-        // 시작시 지도 위치 설정
-        CameraPosition cameraPosition = new CameraPosition(
-                new LatLng(36.82970416, 127.1839876),
-                14
-        );
-        naverMap.setCameraPosition(cameraPosition);
-
+        naverMap.setCameraPosition(getCameraPosition(naverMap, 36.69051516, 126.577804));
 
         setMarker(37.5670135, 126.9783740);
         setMarker(36.69051516, 126.577804);
@@ -92,6 +106,46 @@ public class fragment_home1 extends Fragment implements OnMapReadyCallback {
         setMarker(35.56321329, 129.3332209);
 
         naverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_BUILDING, true);
+
+        naverMap.setLocationSource(locationSource);
+
+        ActivityCompat.requestPermissions(requireActivity(), PERMISSIONS,LOCATION_PERMISSION_REQUEST_CODE);
+
+        // 현재 위치 표시 설정
+        setLocationMode(naverMap);
+        // Map UI 설정 함수
+        setMapUi(naverMap);
+
+        // 오버레이 설정
+//        setOverlay(naverMap);
+    }
+
+    public CameraPosition getCameraPosition(NaverMap naverMap, double latitude, double longitude) {
+        // 시작시 지도 위치 설정
+        return new CameraPosition(
+                new LatLng(latitude, longitude),
+                18
+        );
+    }
+
+    public void setOverlay(NaverMap naverMap) {
+        LocationOverlay locationOverlay = naverMap.getLocationOverlay();
+        locationOverlay.setVisible(true);
+    }
+
+    public void setLocationMode(@NonNull NaverMap naverMap) {
+        // 현재 위치 좌표를 받아오는 변수
+        naverMap.addOnLocationChangeListener(location -> {
+//            Toast.makeText(getContext(), location.getLatitude() + "," + location.getLongitude(), Toast.LENGTH_SHORT).show();
+
+        });
+    }
+
+    public void setMapUi(@NonNull NaverMap naverMap) {
+        UiSettings uiSettings = naverMap.getUiSettings();
+        uiSettings.setCompassEnabled(false);
+        uiSettings.setScaleBarEnabled(false);
+        uiSettings.setLocationButtonEnabled(true);
 
     }
 
@@ -105,16 +159,31 @@ public class fragment_home1 extends Fragment implements OnMapReadyCallback {
         setMarkerSize(marker, 80, 100);
         marker.setMap(naverMap);
     }
-
-    public void setMarkerSize(Marker marker, int width, int height) {
+    public void setMarkerSize(@NonNull Marker marker, int width, int height) {
         marker.setWidth(width);
         marker.setHeight(height);
     }
 
+    /*
+        현재 위치를 받아오기 위한 위치 권한 함수
+     */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] granResults) {
 
+//        Activty에서 권한요청
+        if(locationSource.onRequestPermissionsResult(requestCode, permissions, granResults)) {
+            if(!locationSource.isActivated()) {  // 권한 거부됨
+                naverMap.setLocationTrackingMode(LocationTrackingMode.None);
+            } else {
+                naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, granResults);
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home1, container, false);
     }
