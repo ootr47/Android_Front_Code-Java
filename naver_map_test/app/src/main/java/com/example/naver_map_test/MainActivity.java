@@ -9,12 +9,22 @@ import androidx.fragment.app.FragmentManager;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.util.Arrays;
+
 import nl.joery.animatedbottombar.AnimatedBottomBar;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     FragmentManager fragmentManager;
     AnimatedBottomBar animatedBottomBar;
+
+    //Retrofit BaseUrl
+    public static final String BASE_URL = "http://10.0.2.2:4000";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,5 +76,45 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        //Retrofit Builder
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        // Instance for interface
+        APIInterface apiInterface = retrofit.create(APIInterface.class);
+        Call<DataModel> call = apiInterface.getData();
+
+        call.enqueue(new Callback<DataModel>() {
+            @Override
+            public void onResponse(@NonNull Call<DataModel> call, @NonNull Response<DataModel> response) {
+                // Checking for the response
+                if(response.code() != 200) {
+                    System.out.println("Checking the connection");
+                    return;
+                }
+
+                // Get the data
+
+                // Check response.body() is not null
+                assert response.body() != null;
+                double[] latitude = response.body().latitude;
+                double[] longitude = response.body().longitude;
+                String[] Branch = response.body().Branch;
+                String[] Location = response.body().Location;
+                Log.i("response.body", response.body().toString());
+
+
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<DataModel> call, @NonNull Throwable t) {
+                Log.e("Error connection", t + call.toString());
+            }
+        });
+
+
     }
 }

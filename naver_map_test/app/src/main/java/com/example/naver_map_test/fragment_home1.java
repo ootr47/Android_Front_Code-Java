@@ -1,14 +1,21 @@
 package com.example.naver_map_test;
 
 import android.Manifest;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -174,6 +181,7 @@ public class fragment_home1 extends Fragment implements OnMapReadyCallback {
         if(locationSource.onRequestPermissionsResult(requestCode, permissions, granResults)) {
             if(!locationSource.isActivated()) {  // 권한 거부됨
                 naverMap.setLocationTrackingMode(LocationTrackingMode.None);
+                return;
             } else {
                 naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
             }
@@ -181,10 +189,29 @@ public class fragment_home1 extends Fragment implements OnMapReadyCallback {
         super.onRequestPermissionsResult(requestCode, permissions, granResults);
     }
 
+//    private final ActivityResultLauncher<String> mPermissionResult = registerForActivityResult(
+//            new ActivityResultContracts.RequestPermission(),
+//            new ActivityResultCallback<Boolean>() {
+//                @Override
+//                public void onActivityResult(Boolean result) {
+//                    if(!result) {
+//                        naverMap.setLocationTrackingMode(LocationTrackingMode.None);
+//                        Log.e("naverMap TrackingMode None", "onActivityResult: PERMISSION DENIED");
+//                    } else {
+//                        naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
+//                        Log.e("naverMap TrackingMode Follow", "onActivityResult: PERMISSION GRANTED");
+//                    }
+//                }
+//            }
+//
+//    );
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+//        mPermissionResult.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+//         Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home1, container, false);
     }
 

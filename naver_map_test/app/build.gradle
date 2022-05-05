@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.naver_map_test"
-        minSdk 23
+        minSdk 26
         targetSdk 32
         versionCode 1
         versionName "1.0"
@@ -34,6 +34,14 @@ dependencies {
 
     //Naver map FusedLocationSource
     implementation 'com.google.android.gms:play-services-location:19.0.1'
+
+
+    //Retrofit connection
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.8.2'
+
+    // flexbox-layout
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
 
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.5.0'
