@@ -34,7 +34,10 @@ import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.OverlayImage;
 import com.naver.maps.map.util.FusedLocationSource;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class fragment_home1 extends Fragment implements OnMapReadyCallback {
 
@@ -96,6 +99,22 @@ public class fragment_home1 extends Fragment implements OnMapReadyCallback {
         // onMapReady 함수를 인자로 callback함
         mapFragment.getMapAsync(this);
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
+
+
+        // 주기적인 좌표 업데이트를 위한 타이머 객체
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println(LocalDateTime.now() + " : Executing the task from "
+                        + Thread.currentThread().getName());
+            }
+        };
+        Timer timer = new Timer("Timer");
+        long delay = 3000L;
+        long period = 1000L;
+
+        System.out.println(LocalDateTime.now() + " : Scheduling....");
+        timer.scheduleAtFixedRate(task, delay, period);
     }
 
 

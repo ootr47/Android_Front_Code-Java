@@ -2,12 +2,12 @@ package com.example.naver_map_test;
 
 import com.google.gson.annotations.SerializedName;
 
-public class DataModel {
-    @SerializedName("longitude")
-    public double[] longitude;
+public class DataModel_response {
+    @SerializedName("Longitude")
+    public double[] Longitude;
 
-    @SerializedName("latitude")
-    public double[] latitude;
+    @SerializedName("Latitude")
+    public double[] Latitude;
 
     @SerializedName("Branch")
     public String[] Branch;
@@ -17,11 +17,11 @@ public class DataModel {
 
 
     public double[] getLongitude() {
-        return longitude;
+        return Longitude;
     }
 
     public double[] getLatitude() {
-        return latitude;
+        return Latitude;
     }
 
     public String[] getBranch() {
