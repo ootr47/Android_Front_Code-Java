@@ -98,23 +98,9 @@ public class fragment_home1 extends Fragment implements OnMapReadyCallback {
         }
         // onMapReady 함수를 인자로 callback함
         mapFragment.getMapAsync(this);
+
+        // 현재 위치를 받아오는 함수
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
-
-
-        // 주기적인 좌표 업데이트를 위한 타이머 객체
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                System.out.println(LocalDateTime.now() + " : Executing the task from "
-                        + Thread.currentThread().getName());
-            }
-        };
-        Timer timer = new Timer("Timer");
-        long delay = 3000L;
-        long period = 1000L;
-
-        System.out.println(LocalDateTime.now() + " : Scheduling....");
-        timer.scheduleAtFixedRate(task, delay, period);
     }
 
 
@@ -160,10 +146,22 @@ public class fragment_home1 extends Fragment implements OnMapReadyCallback {
     }
 
     public void setLocationMode(@NonNull NaverMap naverMap) {
-        // 현재 위치 좌표를 받아오는 변수
-        naverMap.addOnLocationChangeListener(location -> {
-//            Toast.makeText(getContext(), location.getLatitude() + "," + location.getLongitude(), Toast.LENGTH_SHORT).show();
 
+//        try {
+//            coordinate_timer coordinateTimer = new coordinate_timer();
+//            // 데몬 스레드로 실행함으로 써 프로그램이 종료되면 타이머도 종료됨
+//            Timer scheduler = new Timer(true);
+//            coordinateTimer.run(naverMap);
+//            long delay = 3000L;
+//            long period = 1000L;
+//            scheduler.scheduleAtFixedRate(coordinateTimer, delay, period);
+//
+//        } catch(Exception e) {
+//            System.out.println("setLocation Error: " + e);
+//
+//        }
+        naverMap.addOnLocationChangeListener(location -> {
+            Toast.makeText(getContext(), location.getLatitude() + ", " + location.getLongitude(), Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -194,6 +192,7 @@ public class fragment_home1 extends Fragment implements OnMapReadyCallback {
         현재 위치를 받아오기 위한 위치 권한 함수
      */
     @Override
+    @SuppressWarnings("deprecation")
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] granResults) {
 
 //        Activty에서 권한요청

@@ -2,12 +2,15 @@ package com.example.naver_map_test;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 
 import java.util.Arrays;
 
@@ -22,10 +25,23 @@ public class MainActivity extends AppCompatActivity {
     FragmentManager fragmentManager;
     AnimatedBottomBar animatedBottomBar;
 
+    private ActionBar actionBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        actionBar = getSupportActionBar();
+        // 툴바 활성화
+        assert actionBar != null;
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_other);
+        // 툴바에 적힐 제목
+        actionBar.setTitle("");
+        actionBar.setHomeButtonEnabled(true);
 
         animatedBottomBar = findViewById(R.id.bottom_bar);
 
@@ -77,12 +93,11 @@ public class MainActivity extends AppCompatActivity {
         retrofitClient retrofitClient = new retrofitClient();
         retrofit = retrofitClient.getClient(retrofit);
 
-
             // Instance for interface
         APIInterface apiInterface = retrofit.create(APIInterface.class);
         Call<DataModel_response> call = apiInterface.getData();
 
-            call.enqueue(new Callback<DataModel_response>() {
+        call.enqueue(new Callback<DataModel_response>() {
                 @Override
                 public void onResponse(@NonNull Call<DataModel_response> call, @NonNull Response<DataModel_response> response) {
                     // Checking for the response
@@ -109,4 +124,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+//    @Override
+//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+//        int id = item.getItemId();
+//
+//        switch (id) {
+//
+//
+//        }
+//    };
+
 }
